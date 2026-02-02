@@ -133,7 +133,7 @@ Detailed production roadmap:
 
 ## Author
 
-Built by **Shaunak Milind** for the Instalily AI case study.
+Built by **Shaunak Milind Alshi** for the Instalily AI case study.
 
 ## License
 
