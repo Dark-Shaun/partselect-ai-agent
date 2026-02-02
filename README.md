@@ -159,18 +159,6 @@ partselect-agent/
 - **Testable** - Each tool can be tested independently
 - **Maintainable** - Clear separation of concerns
 
-### Why 10 Demo Parts?
-- Focused demo with real data from PartSelect
-- 5 refrigerator parts + 5 dishwasher parts
-- Enables meaningful compatibility and troubleshooting demos
-- Real prices, ratings, and compatible models
-
-### Why Gemini?
-- Free tier available for development
-- Good instruction following
-- Fast response times
-- Easy to swap for other providers
-
 ## Production Considerations
 
 For a production deployment, I would add:
