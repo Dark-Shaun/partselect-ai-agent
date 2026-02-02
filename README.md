@@ -6,6 +6,19 @@ An AI-powered customer service chatbot for PartSelect, specializing in refrigera
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![Gemini](https://img.shields.io/badge/Gemini-1.5_Flash-4285F4?style=flat-square&logo=google)
 
+## The Problem
+
+PartSelect serves millions of customers searching for appliance replacement parts. Traditional e-commerce search has limitations:
+
+- Users don't know part numbers → Need natural language: *"My ice maker isn't working"*
+- Compatibility confusion → Need instant verification: *"Does this fit my model?"*
+- Complex troubleshooting → Need step-by-step guidance before buying parts
+- After-hours support → Need 24/7 intelligent assistance
+
+## The Solution
+
+An AI agent that transforms the experience from **"search and hope"** to **"describe and solve"** — letting customers explain their problem in plain English and receive accurate, helpful guidance.
+
 ## Features
 
 - **Product Search** - Find parts by name, description, or symptoms
@@ -98,91 +111,25 @@ Open [http://localhost:3000](http://localhost:3000) to view the chatbot.
 2. Create a new API key
 3. Add it to your `.env.local` file
 
-## Demo Queries
+## Documentation
 
-These queries match the case study requirements:
+For detailed testing information and production considerations, please refer to:
 
-**1. Installation Help**
-> "How can I install part number PS11752778?"
+### 📖 [DEMO_GUIDE.md](./DEMO_GUIDE.md)
 
-**2. Compatibility Check**  
-> "Is this part compatible with my WDT780SAEM1 model?"
+Complete reference for testing the demo:
+- **Why this solution** - Problem statement and vision
+- **All demo parts** - 10 parts with prices, symptoms, and compatible models
+- **Test queries** - Sample queries for each feature (including the 3 required case study queries)
+- **Model & order numbers** - Data needed for compatibility and order tracking tests
+- **Production scaling** - Architecture diagrams, performance targets, and scaling strategy
 
-**3. Troubleshooting**
-> "The ice maker on my Whirlpool fridge is not working. How can I fix it?"
+### 📖 [PRODUCTION_PATH.md](./PRODUCTION_PATH.md)
 
-### Additional Test Queries
-
-- "Show me refrigerator water filters"
-- "What parts are compatible with model WRS325SDHZ?"
-- "My dishwasher won't drain"
-- "Track order PS-2024-78542"
-- "Can you dance with me?" (tests scope guardrails)
-- "Hello" (tests greeting handling)
-
-## Project Structure
-
-```
-partselect-agent/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── chat/route.ts      # Chat API endpoint
-│   │   │   └── tickets/route.ts   # Support ticket API
-│   │   ├── page.tsx               # Main chat page
-│   │   └── layout.tsx             # Root layout
-│   ├── components/
-│   │   ├── chat/                  # Chat UI components
-│   │   │   ├── ChatContainer.tsx
-│   │   │   ├── MessageList.tsx
-│   │   │   ├── MessageInput.tsx
-│   │   │   └── SupportTicketForm.tsx
-│   │   ├── products/              # Product card components
-│   │   └── ui/                    # shadcn/ui components
-│   └── lib/
-│       ├── ai/
-│       │   ├── supervisor.ts      # Main agent logic
-│       │   ├── tools.ts           # Tool definitions
-│       │   └── providers.ts       # AI provider config
-│       └── db/
-│           └── simple-vector-store.ts  # Parts database
-├── data/
-│   └── scraped-parts.json         # Product database (10 demo parts)
-└── .env.local                     # Environment variables
-```
-
-## Key Design Decisions
-
-### Why Supervisor Agent Pattern?
-- **Single decision point** - All intent classification happens in one place
-- **Extensible** - Add new tools without modifying core logic
-- **Testable** - Each tool can be tested independently
-- **Maintainable** - Clear separation of concerns
-
-## Production Considerations
-
-For a production deployment, I would add:
-
-- **Real-time inventory** - Integration via PartSelect API
-- **Vector database** - Pinecone/Weaviate for semantic search across thousands of parts
-- **User authentication** - Personalized order tracking and history
-- **Analytics** - Conversation logging and intent analysis
-- **Caching** - Redis for frequently accessed data
-- **Rate limiting** - Protection against abuse
-- **Monitoring** - Error tracking and performance metrics
-
-See `PRODUCTION_PATH.md` for detailed production roadmap.
-
-## Environment Variables
-
-```bash
-# Required
-GOOGLE_API_KEY=your_gemini_api_key
-
-# Optional (alternative LLMs)
-OPENAI_API_KEY=your_openai_key
-ANTHROPIC_API_KEY=your_anthropic_key
-```
+Detailed production roadmap:
+- Infrastructure requirements
+- Security considerations
+- Implementation phases
 
 ## Author
 
