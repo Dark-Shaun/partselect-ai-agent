@@ -162,44 +162,6 @@ User → Supervisor Agent → Tools → Mock Database
 | **Rate Limiting** | None | Per-user, per-IP limits |
 | **Monitoring** | Console logs | DataDog/NewRelic + custom dashboards |
 
-### Key Production Enhancements
-
-**1. Real-Time Inventory Integration**
-```typescript
-// Instead of static JSON
-const part = await inventoryAPI.getPartWithAvailability(partNumber);
-// Returns: { ...partData, inStock: true, quantity: 47, warehouse: "TX-01" }
-```
-
-**2. Semantic Search with Vector Database**
-```typescript
-// Instead of keyword matching
-const results = await pinecone.query({
-  vector: await embedQuery("ice maker not working"),
-  topK: 10,
-  filter: { category: "refrigerator" }
-});
-```
-
-**3. Conversation Persistence**
-```typescript
-// Store conversations for analytics and continuity
-await db.conversations.save({
-  userId,
-  sessionId,
-  messages,
-  resolvedIssue: true,
-  purchaseMade: true
-});
-```
-
-**4. A/B Testing for Responses**
-```typescript
-// Test different response styles
-const variant = await abTest.getVariant(userId, "response_style");
-const response = await synthesize(result, { style: variant });
-```
-
 ### Performance Targets
 
 | Metric | Demo | Production Target |
