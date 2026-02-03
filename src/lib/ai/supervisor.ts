@@ -356,6 +356,44 @@ export const supervisorAnalyze = async (
     };
   }
 
+  const orderMatch = userMessage.match(/PS-\d{4}-\d{4,10}/i);
+  if (orderMatch) {
+    return {
+      intent: "order_status",
+      toolToUse: "check_order_status",
+      parameters: { orderNumber: orderMatch[0].toUpperCase() },
+      reasoning: "User provided an order number - directly checking status",
+      needsClarification: false,
+    };
+  }
+
+  const partNumberMatch = userMessage.match(/PS\d{7,10}/i);
+  const modelNumberMatch = userMessage.match(/\b[A-Z]{2,5}\d{3,}[A-Z0-9-]*\b/i);
+  const lowerMsg = userMessage.toLowerCase();
+  
+  if (partNumberMatch && /install|how (do|can|to)|put|replace|steps/i.test(lowerMsg)) {
+    return {
+      intent: "installation",
+      toolToUse: "get_installation_help",
+      parameters: { partNumber: partNumberMatch[0].toUpperCase() },
+      reasoning: "User asking for installation help with specific part number",
+      needsClarification: false,
+    };
+  }
+
+  if (partNumberMatch && modelNumberMatch && /compatib|fit|work.*with/i.test(lowerMsg)) {
+    return {
+      intent: "compatibility",
+      toolToUse: "check_compatibility",
+      parameters: { 
+        partNumber: partNumberMatch[0].toUpperCase(),
+        modelNumber: modelNumberMatch[0].toUpperCase()
+      },
+      reasoning: "User checking compatibility with part and model numbers",
+      needsClarification: false,
+    };
+  }
+
   const cachedDecision = getCachedResponse(userMessage, conversationHistory.length);
   if (cachedDecision) {
     console.log('[Cache] Using cached response for:', userMessage.substring(0, 50));

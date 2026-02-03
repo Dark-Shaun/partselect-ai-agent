@@ -113,23 +113,15 @@ Open [http://localhost:3000](http://localhost:3000) to view the chatbot.
 
 ## Documentation
 
-For detailed testing information and production considerations, please refer to:
+For detailed testing information, demo data, and production considerations:
 
 ### 📖 [DEMO_GUIDE.md](./DEMO_GUIDE.md)
 
-Complete reference for testing the demo:
 - **Why this solution** - Problem statement and vision
 - **All demo parts** - 10 parts with prices, symptoms, and compatible models
 - **Test queries** - Sample queries for each feature (including the 3 required case study queries)
 - **Model & order numbers** - Data needed for compatibility and order tracking tests
 - **Production scaling** - Architecture diagrams, performance targets, and scaling strategy
-
-### 📖 [PRODUCTION_PATH.md](./PRODUCTION_PATH.md)
-
-Detailed production roadmap:
-- Infrastructure requirements
-- Security considerations
-- Implementation phases
 
 ## Author
 

@@ -66,12 +66,14 @@ const cosineSimilarity = (a: number[], b: number[]): number => {
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 };
 
-const textSimilarity = (query: string, text: string): number => {
+const textSimilarity = (query: string, text: string, partName?: string): number => {
   const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
   const textLower = text.toLowerCase();
+  const nameLower = partName?.toLowerCase() || "";
   
   let matchCount = 0;
   let exactMatchBonus = 0;
+  let nameMatchBonus = 0;
   
   for (const word of queryWords) {
     if (textLower.includes(word)) {
@@ -79,10 +81,13 @@ const textSimilarity = (query: string, text: string): number => {
       if (textLower.includes(` ${word} `) || textLower.startsWith(word) || textLower.endsWith(word)) {
         exactMatchBonus += 0.5;
       }
+      if (nameLower.includes(word)) {
+        nameMatchBonus += 2.0;
+      }
     }
   }
   
-  return queryWords.length > 0 ? (matchCount + exactMatchBonus) / queryWords.length : 0;
+  return queryWords.length > 0 ? (matchCount + exactMatchBonus + nameMatchBonus) / queryWords.length : 0;
 };
 
 export interface SearchOptions {
@@ -98,7 +103,7 @@ export interface SearchResult extends StoredPart {
 }
 
 export const searchParts = (query: string, options: SearchOptions = {}): SearchResult[] => {
-  const { category, maxResults = 5, minScore = 0.1, sortBy = "relevance", sortOrder = "desc" } = options;
+  const { category, maxResults = 5, minScore = 0.4, sortBy = "relevance", sortOrder = "desc" } = options;
   const parts = loadParts();
   
   let filteredParts = parts;
@@ -108,7 +113,7 @@ export const searchParts = (query: string, options: SearchOptions = {}): SearchR
   
   const results: SearchResult[] = filteredParts.map(part => ({
     ...part,
-    score: textSimilarity(query, part.searchText),
+    score: textSimilarity(query, part.searchText, part.name),
   }));
   
   const filtered = results.filter(r => r.score >= minScore);

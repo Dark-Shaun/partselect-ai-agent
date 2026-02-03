@@ -6,19 +6,27 @@ import { Message, Product, ChatResponse, SupportTicketFormData, SupportTicket } 
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { QuickActions } from "./QuickActions";
+import { Button } from "@/components/ui/button";
+import { Bot, Plus } from "lucide-react";
+
+const INITIAL_MESSAGE_CONTENT = "Hello! I'm your PartSelect assistant, here to help you with refrigerator and dishwasher parts. I can help you:\n\n• **Find parts** by name or part number\n• **Check compatibility** with your appliance model\n• **Troubleshoot issues** and recommend solutions\n• **Get installation help** for any part\n• **Track your order** status\n• **Create support tickets** if you need human assistance\n\nHow can I assist you today?";
+
+const createInitialMessage = (): Message => ({
+  id: uuidv4(),
+  role: "assistant",
+  content: INITIAL_MESSAGE_CONTENT,
+  timestamp: new Date(),
+});
 
 export const ChatContainer = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: uuidv4(),
-      role: "assistant",
-      content: "Hello! I'm your PartSelect assistant, here to help you with refrigerator and dishwasher parts. I can help you:\n\n• **Find parts** by name or part number\n• **Check compatibility** with your appliance model\n• **Troubleshoot issues** and recommend solutions\n• **Get installation help** for any part\n• **Track your order** status\n• **Create support tickets** if you need human assistance\n\nHow can I assist you today?",
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([createInitialMessage()]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmittingTicket, setIsSubmittingTicket] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const handleNewChat = () => {
+    setMessages([createInitialMessage()]);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -178,6 +186,22 @@ export const ChatContainer = () => {
 
   return (
     <div className="flex flex-col h-full">
+      <div className="border-b bg-white px-4 py-3 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2">
+          <Bot className="text-orange-500" size={24} />
+          <span className="font-semibold text-gray-800">PartSelect Assistant</span>
+        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleNewChat}
+          disabled={isLoading}
+          className="flex items-center gap-1"
+        >
+          <Plus size={16} />
+          New Chat
+        </Button>
+      </div>
       <div className="flex-1 overflow-hidden">
         <MessageList 
           messages={messages} 
