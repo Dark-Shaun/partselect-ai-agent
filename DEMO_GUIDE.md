@@ -110,7 +110,7 @@ Transform the customer experience from **"search and hope"** to **"describe and 
 ### Current Demo Architecture
 
 ```
-User → Next.js API → Supervisor Agent → Tools → Mock Database
+User → Supervisor Agent → Tools → Mock Database
                           ↓
                     Gemini AI (intent + response)
 ```
