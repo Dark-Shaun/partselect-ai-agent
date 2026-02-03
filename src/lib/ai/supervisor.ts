@@ -327,13 +327,31 @@ const detectPreviousIntent = (history: ConversationMessage[]): string | null => 
   return null;
 };
 
+interface ExtractedData {
+  orderNumber: string | null;
+  partNumber: string | null;
+  modelNumber: string | null;
+}
+
+const extractStructuredData = (message: string): ExtractedData => {
+  const orderMatch = message.match(/PS-\d{4}-\d{4,10}/i);
+  const partMatch = message.match(/PS\d{7,10}/i);
+  const modelMatch = message.match(/\b[A-Z]{2,5}\d{3,}[A-Z0-9-]*\b/i);
+  
+  return {
+    orderNumber: orderMatch ? orderMatch[0].toUpperCase() : null,
+    partNumber: partMatch ? partMatch[0].toUpperCase() : null,
+    modelNumber: modelMatch ? modelMatch[0].toUpperCase() : null,
+  };
+};
+
 export const supervisorAnalyze = async (
   userMessage: string,
   conversationHistory: ConversationMessage[]
 ): Promise<SupervisorDecision> => {
   const trimmedMsg = userMessage.trim().toLowerCase();
   
-  const isSimpleGreeting = /^(hello|hi|hey|good morning|good afternoon|good evening|good night|hi there|hey there|howdy)$/.test(trimmedMsg);
+  const isSimpleGreeting = /^(hello|hi|hey|good morning|good afternoon|good evening|good night|hi there|hey there|howdy)$/i.test(trimmedMsg);
   if (isSimpleGreeting) {
     return {
       intent: "greeting",
@@ -345,55 +363,19 @@ export const supervisorAnalyze = async (
     };
   }
 
-  const isSimpleThanks = /^(thanks|thank you|thx|ty|bye|goodbye|see you|take care)$/.test(trimmedMsg);
+  const isSimpleThanks = /^(thanks|thank you|thx|ty|bye|goodbye|see you|take care|ok|okay|got it|perfect|great)$/i.test(trimmedMsg);
   if (isSimpleThanks) {
     return {
       intent: "farewell",
       toolToUse: null,
       parameters: {},
-      reasoning: "User saying thanks/goodbye",
+      reasoning: "User acknowledgment/goodbye",
       needsClarification: false,
     };
   }
 
-  const orderMatch = userMessage.match(/PS-\d{4}-\d{4,10}/i);
-  if (orderMatch) {
-    return {
-      intent: "order_status",
-      toolToUse: "check_order_status",
-      parameters: { orderNumber: orderMatch[0].toUpperCase() },
-      reasoning: "User provided an order number - directly checking status",
-      needsClarification: false,
-    };
-  }
-
-  const partNumberMatch = userMessage.match(/PS\d{7,10}/i);
-  const modelNumberMatch = userMessage.match(/\b[A-Z]{2,5}\d{3,}[A-Z0-9-]*\b/i);
-  const lowerMsg = userMessage.toLowerCase();
+  const extractedData = extractStructuredData(userMessage);
   
-  if (partNumberMatch && /install|how (do|can|to)|put|replace|steps/i.test(lowerMsg)) {
-    return {
-      intent: "installation",
-      toolToUse: "get_installation_help",
-      parameters: { partNumber: partNumberMatch[0].toUpperCase() },
-      reasoning: "User asking for installation help with specific part number",
-      needsClarification: false,
-    };
-  }
-
-  if (partNumberMatch && modelNumberMatch && /compatib|fit|work.*with/i.test(lowerMsg)) {
-    return {
-      intent: "compatibility",
-      toolToUse: "check_compatibility",
-      parameters: { 
-        partNumber: partNumberMatch[0].toUpperCase(),
-        modelNumber: modelNumberMatch[0].toUpperCase()
-      },
-      reasoning: "User checking compatibility with part and model numbers",
-      needsClarification: false,
-    };
-  }
-
   const cachedDecision = getCachedResponse(userMessage, conversationHistory.length);
   if (cachedDecision) {
     console.log('[Cache] Using cached response for:', userMessage.substring(0, 50));
@@ -417,20 +399,50 @@ export const supervisorAnalyze = async (
     ? `\n\nPREVIOUS CONVERSATION INTENT: ${previousIntent}\nIMPORTANT: If the user is answering a clarifying question (like "refrigerator" or "dishwasher"), stay focused on the ORIGINAL intent (${previousIntent}). Don't pivot to a new topic.`
     : "";
 
+  const extractedDataContext = `
+EXTRACTED DATA FROM MESSAGE (use these in parameters if relevant):
+- Order Number: ${extractedData.orderNumber || "not found"}
+- Part Number: ${extractedData.partNumber || "not found"}
+- Model Number: ${extractedData.modelNumber || "not found"}
+
+IMPORTANT: If an order number is detected, the user likely wants order status - use check_order_status tool.
+If a part number is detected with install/how-to words, use get_installation_help tool.
+If both part and model numbers are detected with compatibility words, use check_compatibility tool.`;
+
   const prompt = `Conversation history:
 ${historyContext || "No previous messages"}
 ${intentContext}
+${extractedDataContext}
 
 Current user message: "${userMessage}"
 
-Analyze this query and decide how to handle it. Remember to check for tricky or ambiguous queries.`;
+Analyze this query and decide how to handle it. Focus on understanding the USER'S INTENT first, then select the appropriate tool.`;
 
   try {
     const response = await generateAIResponse(prompt, SUPERVISOR_SYSTEM_PROMPT);
     
     const jsonMatch = response.text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      const decision = JSON.parse(jsonMatch[0]) as SupervisorDecision;
+      let decision = JSON.parse(jsonMatch[0]) as SupervisorDecision;
+      
+      if (decision.toolToUse === "check_order_status" && extractedData.orderNumber) {
+        decision.parameters = { ...decision.parameters, orderNumber: extractedData.orderNumber };
+      }
+      if (decision.toolToUse === "get_installation_help" && extractedData.partNumber) {
+        decision.parameters = { ...decision.parameters, partNumber: extractedData.partNumber };
+      }
+      if (decision.toolToUse === "check_compatibility") {
+        if (extractedData.partNumber) {
+          decision.parameters = { ...decision.parameters, partNumber: extractedData.partNumber };
+        }
+        if (extractedData.modelNumber) {
+          decision.parameters = { ...decision.parameters, modelNumber: extractedData.modelNumber };
+        }
+      }
+      if (decision.toolToUse === "get_compatible_parts" && extractedData.modelNumber) {
+        decision.parameters = { ...decision.parameters, modelNumber: extractedData.modelNumber };
+      }
+      
       setCachedResponse(userMessage, conversationHistory.length, decision);
       decision.contextDepth = contextDepth;
       console.log("Supervisor decision:", decision);
@@ -440,7 +452,7 @@ Analyze this query and decide how to handle it. Remember to check for tricky or 
     console.error("Supervisor analysis error:", error);
   }
 
-  return fallbackAnalysis(userMessage, conversationHistory);
+  return fallbackAnalysis(userMessage, conversationHistory, extractedData);
 };
 
 const detectResultLimit = (query: string, aiSuggestedLimit?: number): number => {
@@ -584,7 +596,8 @@ const extractModelNumber = (text: string, partNumber?: string): string | undefin
 
 const fallbackAnalysis = (
   message: string,
-  history: ConversationMessage[]
+  history: ConversationMessage[],
+  preExtracted?: ExtractedData
 ): SupervisorDecision => {
   const lower = message.toLowerCase();
   const normalizedLower = lower.replace(/[’‘]/g, "'");
@@ -594,15 +607,31 @@ const fallbackAnalysis = (
   const { sortBy, sortOrder } = detectSortPreference(message);
   const contextDepth = detectContextDepth(message, history.length);
   
+  const extracted = preExtracted || extractStructuredData(message);
+  
+  if (extracted.orderNumber) {
+    return {
+      intent: "order_status",
+      toolToUse: "check_order_status",
+      parameters: { orderNumber: extracted.orderNumber },
+      reasoning: "Order number detected - checking status",
+      needsClarification: false,
+      resultLimit,
+      responseStyle,
+      sortBy,
+      sortOrder,
+    };
+  }
+  
   const detectedCategory = detectCategory(message);
   if (detectedCategory) {
     params.category = detectedCategory;
   }
 
-  const partNumber = extractPartNumber(message);
+  const partNumber = extracted.partNumber || extractPartNumber(message);
   if (partNumber) params.partNumber = partNumber;
 
-  const modelNumber = extractModelNumber(message, partNumber);
+  const modelNumber = extracted.modelNumber || extractModelNumber(message, partNumber);
   if (modelNumber) params.modelNumber = modelNumber;
 
   for (const msg of [...history].reverse().slice(0, contextDepth)) {
