@@ -20,50 +20,6 @@ Transform the customer experience from **"search and hope"** to **"describe and 
 
 ---
 
-## Demo Data Reference
-
-### Refrigerator Parts (5)
-
-| Part # | Name | Price | Difficulty | Key Symptoms |
-|--------|------|-------|------------|--------------|
-| PS12364147 | Ice Maker Assembly | $189.95 | Moderate | Ice maker not working, clicking sounds |
-| PS473177 | Evaporator Fan Blade | $12.95 | Easy | Fridge too warm, noisy |
-| PS2350702 | Defrost Thermostat | $32.75 | Moderate | Frost buildup, runs too long |
-| PS11701542 | Water Filter | $83.89 | Easy | Bad taste, slow dispenser |
-| PS7784009 | Door Gasket | $89.50 | Easy | Door not sealing, sweating |
-
-### Dishwasher Parts (5)
-
-| Part # | Name | Price | Difficulty | Key Symptoms |
-|--------|------|-------|------------|--------------|
-| PS12712308 | Motor & Pump Assembly | $219.99 | Difficult | Not cleaning, not draining |
-| PS16218716 | Door Latch Assembly | $52.50 | Moderate | Won't start, door issues |
-| PS12585623 | Lower Spray Arm | $38.95 | Easy | Not cleaning properly |
-| PS1990907 | Water Inlet Valve | $62.99 | Moderate | Won't fill, leaking |
-| PS11750092 | Dishrack Adjuster | $28.99 | Easy | Rack won't stay up |
-
-### Model Numbers for Testing
-
-**Refrigerator Models:**
-- `WRS325SDHZ` (Whirlpool)
-- `FFSS2615TS0` (Frigidaire)
-- `LFSS2612TF0` (Frigidaire)
-
-**Dishwasher Models:**
-- `WDT780SAEM1` (Whirlpool)
-- `FFCD2418US` (Frigidaire)
-- `KDTM354ESS` (KitchenAid)
-
-### Order Numbers for Tracking
-
-| Order # | Status |
-|---------|--------|
-| PS-2024-78542 | Shipped |
-| PS-2024-78123 | Delivered |
-| PS-2024-79001 | Processing |
-
----
-
 ## Why Supervisor Agent Architecture?
 
 ### What It Is
@@ -107,6 +63,50 @@ This means:
 - Adding new capabilities = adding new tools (no AI retraining)
 - Changing AI providers = swap one function (tools unchanged)
 - Scaling = horizontal scaling of stateless services
+
+---
+
+## Demo Data Reference
+
+### Refrigerator Parts (5)
+
+| Part # | Name | Price | Difficulty | Key Symptoms |
+|--------|------|-------|------------|--------------|
+| PS12364147 | Ice Maker Assembly | $189.95 | Moderate | Ice maker not working, clicking sounds |
+| PS473177 | Evaporator Fan Blade | $12.95 | Easy | Fridge too warm, noisy |
+| PS2350702 | Defrost Thermostat | $32.75 | Moderate | Frost buildup, runs too long |
+| PS11701542 | Water Filter | $83.89 | Easy | Bad taste, slow dispenser |
+| PS7784009 | Door Gasket | $89.50 | Easy | Door not sealing, sweating |
+
+### Dishwasher Parts (5)
+
+| Part # | Name | Price | Difficulty | Key Symptoms |
+|--------|------|-------|------------|--------------|
+| PS12712308 | Motor & Pump Assembly | $219.99 | Difficult | Not cleaning, not draining |
+| PS16218716 | Door Latch Assembly | $52.50 | Moderate | Won't start, door issues |
+| PS12585623 | Lower Spray Arm | $38.95 | Easy | Not cleaning properly |
+| PS1990907 | Water Inlet Valve | $62.99 | Moderate | Won't fill, leaking |
+| PS11750092 | Dishrack Adjuster | $28.99 | Easy | Rack won't stay up |
+
+### Model Numbers for Testing
+
+**Refrigerator Models:**
+- `WRS325SDHZ` (Whirlpool)
+- `FFSS2615TS0` (Frigidaire)
+- `LFSS2612TF0` (Frigidaire)
+
+**Dishwasher Models:**
+- `WDT780SAEM1` (Whirlpool)
+- `FFCD2418US` (Frigidaire)
+- `KDTM354ESS` (KitchenAid)
+
+### Order Numbers for Tracking
+
+| Order # | Status |
+|---------|--------|
+| PS-2024-78542 | Shipped |
+| PS-2024-78123 | Delivered |
+| PS-2024-79001 | Processing |
 
 ---
 
