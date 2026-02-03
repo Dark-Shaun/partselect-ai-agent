@@ -64,6 +64,52 @@ Transform the customer experience from **"search and hope"** to **"describe and 
 
 ---
 
+## Why Supervisor Agent Architecture?
+
+### What It Is
+A **Supervisor Agent** is an AI orchestrator that:
+1. **Analyzes** user intent from natural language
+2. **Decides** which specialized tool to use
+3. **Executes** the tool with extracted parameters
+4. **Synthesizes** a helpful response
+
+### Why This Architecture for the Demo
+
+| Benefit | How It Helps |
+|---------|--------------|
+| **Intent-First Design** | Understands "my ice maker broke" vs "show me ice makers" as different needs |
+| **Tool Specialization** | Each tool does one thing well (search, troubleshoot, compatibility check) |
+| **Clean Separation** | AI handles language, tools handle logic — easy to debug |
+| **Deterministic Fallbacks** | Keyword matching works even if AI fails |
+
+### How It Helps PartSelect
+
+1. **Reduces Support Tickets** → AI handles common questions 24/7
+2. **Improves Conversion** → Users find the right part faster with symptom-based search
+3. **Increases Trust** → Compatibility verification prevents wrong purchases
+4. **Scales Support** → One agent handles unlimited concurrent conversations
+
+### How It Scales for Production
+
+| Demo State | Production Enhancement |
+|------------|----------------------|
+| 7 tools | Add 50+ tools (warranty, returns, scheduling, live agent handoff) |
+| Single AI call | Parallel tool execution, multi-agent collaboration |
+| In-memory state | Persistent conversations with user profiles |
+| One model | Route simple queries to fast models, complex to powerful ones |
+| 10 parts | Same architecture works with 5M+ parts |
+
+### The Key Insight
+
+> The Supervisor pattern decouples **what the user wants** from **how to fulfill it**.
+
+This means:
+- Adding new capabilities = adding new tools (no AI retraining)
+- Changing AI providers = swap one function (tools unchanged)
+- Scaling = horizontal scaling of stateless services
+
+---
+
 ## Test Queries
 
 ### Required Case Study Queries
@@ -183,46 +229,8 @@ User → Supervisor Agent → Tools → Mock Database
 
 ---
 
-## Why This Architecture Works
-
-### 1. Separation of Concerns
-The Supervisor Agent pattern cleanly separates:
-- **Intent Detection** → What does the user want?
-- **Tool Selection** → Which capability handles this?
-- **Execution** → Run the appropriate tool
-- **Response Generation** → Craft a helpful reply
-
-### 2. Extensibility
-Adding new capabilities is straightforward:
-```typescript
-// Add warranty lookup in 10 minutes
-export const warrantyLookupTool: Tool = {
-  name: "check_warranty",
-  description: "Check warranty status for a part or appliance",
-  execute: async (params) => { /* ... */ }
-};
-```
-
-### 3. Testability
-Each component can be tested independently:
-- Unit tests for individual tools
-- Integration tests for the supervisor
-- E2E tests for complete flows
-
-### 4. Resilience
-- Fallback to keyword matching if AI fails
-- Graceful degradation for missing data
-- Clear error messages for users
-
----
-
 ## Summary
 
-This demo showcases the core capabilities of an AI-powered customer service agent. While built with 10 demo parts, the architecture is designed to scale to millions of products with:
+This demo showcases an AI-powered customer service agent using the **Supervisor Agent pattern**. While built with 10 demo parts, the architecture scales to millions of products. The key advantage: **adding new capabilities means adding new tools — no AI retraining required**.
 
-- Real-time inventory integration
-- Semantic search across the full catalog
-- Personalized recommendations based on purchase history
-- Multi-channel support (web, mobile, voice)
-
-The Supervisor Agent pattern provides a clean, extensible foundation that can evolve with business needs.
+Built by **Shaunak Milind** for the Instalily AI case study.
